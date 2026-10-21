@@ -283,4 +283,9 @@ def login_form():
 
 
 # ---------------------------------------------------------------- router
+_db_error = database.check_connection()
+if _db_error:
+    st.error("The grade database could not be reached. Please tell your teacher.")
+    st.code(_db_error)
+    st.stop()
 {"welcome": welcome_page, "assessment": assessment_page, "teacher": teacher_page}[ss.page]()

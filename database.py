@@ -26,9 +26,20 @@ results = Table(
 
 @st.cache_resource
 def get_engine():
-    engine = create_engine(config.get_database_url(), pool_pre_ping=True)
+    url = config.get_database_url()
+    args = {"connect_timeout": 20} if url.startswith("postgresql") else {}
+    engine = create_engine(url, pool_pre_ping=True, connect_args=args)
     metadata.create_all(engine)  # creates the table automatically if missing
     return engine
+
+
+def check_connection():
+    """Returns None if the database works, otherwise a readable error message."""
+    try:
+        get_engine()
+        return None
+    except Exception as e:
+        return f"{type(e).__name__}: {e}"
 
 
 def already_submitted(name, class_name):
