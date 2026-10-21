@@ -35,6 +35,9 @@ def get_database_url():
     url = _secret("database", "url", "DATABASE_URL")
     if not url:
         return f"sqlite:///{SQLITE_PATH}"
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+    # Always use the modern "psycopg" (v3) driver for PostgreSQL
+    for prefix in ("postgresql+psycopg2://", "postgresql://", "postgres://"):
+        if url.startswith(prefix):
+            url = "postgresql+psycopg://" + url[len(prefix):]
+            break
     return url
